@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perapera Park 🌿</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=M+PLUS+Rounded+1c:wght@400;700;800&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --grass:    #5BBF6A;
+      --grass-d:  #3A9649;
+      --grass-l:  #C8EDCB;
+      --sky:      #D6F0FF;
+      --sky-deep: #85CEFA;
+      --path:     #E8D9B0;
+      --path-d:   #C9B87A;
+      --bench:    #A0784A;
+      --sun:      #FFD94A;
+      --paper:    #FFFEF4;
+      --ink:      #2C3E20;
+      --ink-m:    #5A6B4A;
+      --ink-l:    #8A9B7A;
+      --lvl-primary:    #E8849A;
+      --lvl-secondary:  #FFB7C5;
+      --lvl-accent:     #C060A0;
+      --lvl-user-grad:  linear-gradient(135deg,#C060A0,#E8849A);
+      --lvl-hint-bg:    rgba(255,183,197,0.13);
+      --lvl-hint-bdr:   #FFB7C5;
+      --lvl-send-shadow:rgba(192,96,160,0.38);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{
+      font-family:'M PLUS Rounded 1c',sans-serif;
+      background:var(--sky);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    /* ── Sky background ── */
+    .sky-bg{
+      position:fixed; inset:0; z-index:0;
+      background:linear-gradient(180deg, #C9ECFF 0%, #E8F8FF 55%, #D4F0B8 100%);
+    }
+    /* Clouds */
+    .cloud{
+      position:fixed; z-index:1; pointer-events:none;
+      background:white; border-radius:50px; opacity:0.82;
+      animation:drift linear infinite;
+    }
+    .cloud::before,.cloud::after{
+      content:''; position:absolute; background:white; border-radius:50%;
+    }
+    @keyframes drift{
+      0%  {transform:translateX(-220px);}
+      100%{transform:translateX(110vw);}
+    }
+
+    /* ── Sun ── */
+    .sun{
+      position:fixed; top:28px; right:60px; z-index:2;
+      width:64px; height:64px; background:var(--sun);
+      border-radius:50%;
+      box-shadow:0 0 0 10px rgba(255,217,74,0.25), 0 0 0 22px rgba(255,217,74,0.12);
+      animation:sunpulse 4s ease-in-out infinite;
+    }
+    @keyframes sunpulse{
+      0%,100%{box-shadow:0 0 0 10px rgba(255,217,74,0.25),0 0 0 22px rgba(255,217,74,0.12);}
+      50%    {box-shadow:0 0 0 14px rgba(255,217,74,0.3), 0 0 0 28px rgba(255,217,74,0.1);}
+    }
+
+    /* ── Ground / grass ── */
+    .ground{
+      position:fixed; bottom:0; left:0; right:0; height:120px; z-index:1;
+      background:var(--grass);
+      border-top:4px solid var(--grass-d);
+    }
+    .ground::before{
+      content:''; position:absolute; top:-18px; left:0; right:0; height:22px;
+      background:
+        radial-gradient(ellipse 26px 18px at 5%  100%, var(--grass) 99%, transparent 100%),
+        radial-gradient(ellipse 18px 14px at 12% 100%, var(--grass) 99%, transparent 100%),
+        radial-gradient(ellipse 30px 20px at 22% 100%, var(--grass) 99%, transparent 100%),
+        radial-gradient(ellipse 20px 15px at 33% 100%, var(--grass) 99%, transparent 100%),
+        radial-gradient(ellipse 28px 18px at 44% 100%, var(--grass) 99%, transparent 100%),
+        radial-gradient(ellipse 22px 16px at 55% 100%, var(--grass) 99%, transparent 100%),
+        radial-gradient(ellipse 32px 20px at 66% 100%, var(--grass) 99%, transparent 100%),
+        radial-gradient(ellipse 18px 14px at 77% 100%, var(--grass) 99%, transparent 100%),
+        radial-gradient(ellipse 28px 18px at 88% 100%, var(--grass) 99%, transparent 100%),
+        radial-gradient(ellipse 20px 15px at 97% 100%, var(--grass) 99%, transparent 100%);
+    }
+
+    /* ── Trees (decorative) ── */
+    .tree{position:fixed;bottom:100px;z-index:2;pointer-events:none;}
+    .tree-trunk{width:14px;height:36px;background:var(--bench);border-radius:3px;margin:0 auto;}
+    .tree-top{
+      width:56px;height:56px;background:var(--grass-d);border-radius:50% 50% 40% 40%;
+      margin:0 auto -10px; position:relative;
+      box-shadow:0 4px 0 rgba(0,0,0,0.1);
+    }
+    .tree-top::after{
+      content:''; position:absolute; top:8px; left:8px; right:8px; height:16px;
+      background:rgba(255,255,255,0.15); border-radius:50%;
+    }
+
+    /* ── Bench (decorative) ── */
+    .bench-deco{position:fixed;bottom:118px;z-index:2;pointer-events:none;}
+    .bench-seat{width:56px;height:9px;background:var(--bench);border-radius:3px;}
+    .bench-leg{width:5px;height:18px;background:#7A5A30;display:inline-block;border-radius:2px;margin:0 6px;}
+
+    /* ── Floating emojis ── */
+    .floaty{
+      position:fixed;font-size:1.4rem;z-index:2;pointer-events:none;
+      animation:floatUp ease-in-out infinite;
+    }
+    @keyframes floatUp{
+      0%,100%{transform:translateY(0) rotate(-5deg);}
+      50%    {transform:translateY(-12px) rotate(5deg);}
+    }
+
+    /* ── Main container ── */
+    .container{
+      position:relative;z-index:10;
+      max-width:860px; margin:0 auto;
+      padding:24px 16px 160px;
+    }
+
+    /* ── Header / sign ── */
+    .park-sign{
+      text-align:center;
+      background: var(--paper);
+      border:4px solid var(--bench);
+      border-radius:18px;
+      padding:20px 28px 18px;
+      margin-bottom:22px;
+      position:relative;
+      box-shadow:6px 6px 0 var(--bench), 0 2px 18px rgba(0,0,0,0.08);
+    }
+    /* Post */
+    .park-sign::before,.park-sign::after{
+      content:''; position:absolute; bottom:-38px;
+      width:10px;height:40px;background:var(--bench);border-radius:2px;
+    }
+    .park-sign::before{left:38%;}
+    .park-sign::after {right:38%;}
+
+    .sign-top{
+      display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+    }
+    .logo-en{
+      font-family:'Fredoka One',cursive;
+      font-size:clamp(2rem,6vw,3.2rem);
+      color:var(--grass-d);
+      text-shadow:3px 3px 0 rgba(90,160,80,0.25);
+      letter-spacing:0.04em;
+      line-height:1;
+    }
+    .logo-leaf{font-size:clamp(1.6rem,4vw,2.4rem);}
+
+    .tagline{
+      font-size:clamp(0.82rem,2vw,1rem);
+      color:var(--ink-m);
+      margin-top:10px;
+      line-height:1.7;
+    }
+    .tagline .pera{
+      font-family:'Zen Maru Gothic',sans-serif;
+      font-weight:900;
+      font-size:1.15em;
+      color:var(--grass-d);
+      display:inline-block;
+      animation:perawobble 2.4s ease-in-out infinite;
+    }
+    @keyframes perawobble{
+      0%,100%{transform:rotate(-2deg) scale(1);}
+      50%    {transform:rotate(2deg) scale(1.07);}
+    }
+    .tagline .sub{
+      display:block;
+      font-size:0.8em;
+      color:var(--ink-l);
+      margin-top:4px;
+    }
+
+    /* ── Level selector (park benches style) ── */
+    .level-selector{display:flex;gap:10px;margin-bottom:20px;justify-content:center;flex-wrap:wrap;}
+    .lvl-btn{
+      flex:1; min-width:128px; max-width:210px;
+      padding:13px 10px 11px; border-radius:16px;
+      border:3px solid var(--path-d);
+      background:var(--path);
+      cursor:pointer;
+      font-family:'M PLUS Rounded 1c',sans-serif;
+      text-align:center;
+      transition:all 0.22s;
+      box-shadow:3px 3px 0 var(--path-d);
+    }
+    .lvl-btn:hover{transform:translateY(-3px);box-shadow:3px 6px 0 var(--path-d);}
+    .lvl-btn.active{
+      border-color:var(--lvl-primary);
+      background:white;
+      box-shadow:4px 4px 0 var(--lvl-primary);
+    }
+    .lvl-icon{font-size:1.9rem;display:block;margin-bottom:3px;}
+    .lvl-name{font-size:0.9rem;font-weight:800;color:var(--ink);display:block;}
+    .lvl-btn.active .lvl-name{color:var(--lvl-primary);}
+    .lvl-desc{font-size:0.7rem;color:var(--ink-l);margin-top:1px;display:block;}
+    .lvl-badge{
+      display:inline-block;padding:2px 9px;border-radius:10px;
+      font-size:0.67rem;font-weight:800;margin-top:5px;letter-spacing:0.03em;
+    }
+
+    /* ── Chat area (park bench / picnic feel) ── */
+    .park-board{
+      background:var(--paper);
+      border:3px solid #C8B880;
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:5px 5px 0 #C8B880, 0 4px 22px rgba(0,0,0,0.07);
+      margin-bottom:14px;
+    }
+
+    /* Char card inside board header */
+    .board-header{
+      background:linear-gradient(135deg, var(--grass-d) 0%, var(--grass) 100%);
+      padding:13px 18px;
+      display:flex; align-items:center; gap:13px;
+    }
+    .char-avatar{font-size:2.4rem;min-width:48px;text-align:center;animation:wiggle 3.2s ease-in-out infinite;}
+    @keyframes wiggle{0%,88%,100%{transform:rotate(0deg)}90%{transform:rotate(-9deg)}95%{transform:rotate(9deg)}}
+    .char-info h2{font-size:0.95rem;color:white;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,0.2);}
+    .char-info p {font-size:0.79rem;color:rgba(255,255,255,0.88);line-height:1.45;margin-top:2px;}
+    .status-dot{
+      display:inline-block;width:8px;height:8px;
+      background:#A8FF9A;border-radius:50%;margin-right:5px;
+      animation:pulse 1.5s infinite;box-shadow:0 0 4px #A8FF9A;
+    }
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+    /* toolbar */
+    .board-toolbar{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:9px 16px; background:rgba(90,160,80,0.07);
+      border-bottom:2px dashed rgba(90,160,80,0.2);
+      flex-wrap:wrap; gap:8px;
+    }
+    .hint-toggle{display:flex;align-items:center;gap:8px;font-size:0.79rem;color:var(--ink-m);}
+    .toggle-switch{position:relative;width:36px;height:20px;cursor:pointer;}
+    .toggle-switch input{display:none;}
+    .toggle-track{position:absolute;inset:0;background:#CCC;border-radius:10px;transition:background 0.2s;}
+    .toggle-thumb{
+      position:absolute;width:14px;height:14px;background:white;border-radius:50%;
+      top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.22);
+    }
+    .toggle-switch input:checked ~ .toggle-track{background:var(--grass-d);}
+    .toggle-switch input:checked ~ .toggle-thumb{transform:translateX(16px);}
+    .clear-btn{
+      padding:4px 12px;border-radius:10px;border:1.5px solid #CCC;background:white;
+      font-family:'M PLUS Rounded 1c',sans-serif;font-size:0.75rem;color:var(--ink-l);
+      cursor:pointer;transition:all 0.15s;
+    }
+    .clear-btn:hover{border-color:var(--grass-d);color:var(--grass-d);}
+
+    /* chat scroll */
+    .chat-box{
+      height:380px;overflow-y:auto;padding:16px 14px;
+      scroll-behavior:smooth;
+      background:
+        repeating-linear-gradient(transparent,transparent 27px,rgba(200,220,180,0.18) 28px);
+    }
+    .chat-box::-webkit-scrollbar{width:5px;}
+    .chat-box::-webkit-scrollbar-thumb{background:var(--grass-l);border-radius:3px;}
+
+    .message{display:flex;gap:9px;margin-bottom:13px;animation:msgIn 0.28s ease-out;}
+    @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .message.user{flex-direction:row-reverse;}
+    .msg-avatar{font-size:1.65rem;min-width:36px;height:36px;display:flex;align-items:center;justify-content:center;}
+    .msg-bubble{max-width:76%;padding:10px 14px;border-radius:18px;font-size:0.91rem;line-height:1.68;color:var(--ink);}
+    .message.ai   .msg-bubble{
+      background:white;border:2px solid var(--lvl-secondary);
+      border-bottom-left-radius:4px;
+      box-shadow:2px 2px 0 rgba(0,0,0,0.04);transition:border-color 0.4s;
+    }
+    .message.user .msg-bubble{
+      background:var(--lvl-user-grad);color:white;border-bottom-right-radius:4px;
+    }
+    .msg-time{font-size:0.65rem;color:var(--ink-l);margin-top:3px;}
+    .message.ai   .msg-time{text-align:left;}
+    .message.user .msg-time{text-align:right;}
+    .hint-box{
+      font-size:0.76rem;color:var(--ink-m);
+      background:var(--lvl-hint-bg);border-left:3px solid var(--lvl-hint-bdr);
+      padding:5px 9px;border-radius:0 7px 7px 0;margin-top:4px;line-height:1.55;
+      transition:background 0.4s,border-color 0.4s;
+    }
+
+    /* typing */
+    .typing-indicator{display:none;gap:9px;margin-bottom:13px;align-items:center;}
+    .typing-indicator.show{display:flex;}
+    .typing-dots{
+      background:white;border:2px solid var(--lvl-secondary);
+      border-radius:18px;border-bottom-left-radius:4px;
+      padding:10px 14px;display:flex;gap:5px;align-items:center;
+    }
+    .dot{width:7px;height:7px;background:var(--lvl-primary);border-radius:50%;animation:dotB 1.2s infinite;}
+    .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+    @keyframes dotB{0%,80%,100%{transform:scale(0.7);opacity:0.5}40%{transform:scale(1);opacity:1}}
+
+    /* quick phrases */
+    .quick-wrap{margin-bottom:12px;}
+    .quick-label{font-size:0.73rem;color:var(--ink-m);margin-bottom:7px;display:flex;align-items:center;gap:5px;}
+    .quick-btns{display:flex;flex-wrap:wrap;gap:6px;}
+    .quick-btn{
+      padding:5px 12px;border-radius:20px;
+      border:2px solid var(--lvl-secondary);background:white;
+      font-family:'M PLUS Rounded 1c',sans-serif;font-size:0.78rem;
+      color:var(--lvl-primary);cursor:pointer;transition:all 0.15s;font-weight:700;
+    }
+    .quick-btn:hover{background:var(--lvl-secondary);color:white;transform:translateY(-1px);}
+
+    /* input */
+    .input-area{display:flex;gap:10px;align-items:flex-end;}
+    .input-wrap{flex:1;}
+    textarea{
+      width:100%;padding:12px 15px;
+      font-family:'M PLUS Rounded 1c',sans-serif;font-size:0.91rem;
+      border:2.5px solid #C8D8A8;border-radius:16px;resize:none;
+      background:var(--paper);color:var(--ink);line-height:1.5;
+      transition:border-color 0.2s,box-shadow 0.2s;outline:none;
+      min-height:48px;max-height:120px;
+    }
+    textarea:focus{border-color:var(--grass-d);box-shadow:0 0 0 3px rgba(90,160,80,0.15);}
+    textarea::placeholder{color:#AABBA0;}
+    .send-btn{
+      width:48px;height:48px;border-radius:50%;border:none;
+      background:var(--lvl-user-grad);color:white;font-size:1.25rem;cursor:pointer;
+      transition:transform 0.15s,box-shadow 0.15s;
+      box-shadow:0 3px 10px var(--lvl-send-shadow);
+      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    }
+    .send-btn:hover {transform:scale(1.09);}
+    .send-btn:active{transform:scale(0.94);}
+    .send-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+    @media(max-width:480px){
+      .board-header{flex-direction:column;text-align:center;}
+      .chat-box{height:300px;}
+      .lvl-btn{min-width:88px;}
+      .park-sign::before,.park-sign::after{display:none;}
+    }
+  </style>
+</head>
+<body>
+<div class="sky-bg"></div>
+<div class="sun"></div>
+
+<!-- Clouds -->
+<div class="cloud" style="width:100px;height:30px;top:60px;animation-duration:38s;animation-delay:0s;">
+  <div style="position:absolute;width:44px;height:44px;background:white;border-radius:50%;top:-22px;left:18px;"></div>
+  <div style="position:absolute;width:30px;height:30px;background:white;border-radius:50%;top:-16px;left:46px;"></div>
+</div>
+<div class="cloud" style="width:80px;height:24px;top:110px;animation-duration:52s;animation-delay:14s;">
+  <div style="position:absolute;width:34px;height:34px;background:white;border-radius:50%;top:-18px;left:14px;"></div>
+  <div style="position:absolute;width:24px;height:24px;background:white;border-radius:50%;top:-12px;left:38px;"></div>
+</div>
+<div class="cloud" style="width:120px;height:32px;top:36px;animation-duration:44s;animation-delay:26s;">
+  <div style="position:absolute;width:50px;height:50px;background:white;border-radius:50%;top:-26px;left:20px;"></div>
+  <div style="position:absolute;width:36px;height:36px;background:white;border-radius:50%;top:-18px;left:56px;"></div>
+</div>
+
+<!-- Ground -->
+<div class="ground"></div>
+
+<!-- Trees -->
+<div class="tree" style="left:30px;">
+  <div class="tree-top"></div><div class="tree-trunk"></div>
+</div>
+<div class="tree" style="right:40px;">
+  <div class="tree-top" style="width:70px;height:70px;"></div>
+  <div class="tree-trunk" style="height:44px;"></div>
+</div>
+<div class="tree" style="left:160px;bottom:95px;">
+  <div class="tree-top" style="width:44px;height:44px;"></div>
+  <div class="tree-trunk" style="height:28px;width:10px;"></div>
+</div>
+
+<!-- Bench deco -->
+<div class="bench-deco" style="right:130px;">
+  <div class="bench-seat"></div>
+  <div style="display:flex;justify-content:space-between;padding:0 6px;">
+    <div class="bench-leg"></div><div class="bench-leg"></div>
+  </div>
+</div>
+
+<!-- Floating emojis -->
+<div class="floaty" style="left:8%;bottom:155px;animation-duration:3.2s;">🌸</div>
+<div class="floaty" style="left:48%;bottom:170px;animation-duration:2.8s;animation-delay:.8s;">🍃</div>
+<div class="floaty" style="right:14%;bottom:160px;animation-duration:3.6s;animation-delay:1.4s;">🌼</div>
+
+<!-- ════ MAIN ════ -->
+<div class="container">
+
+  <!-- Park sign -->
+  <div class="park-sign">
+    <div class="sign-top">
+      <span class="logo-leaf">🌿</span>
+      <span class="logo-en">Perapera Park</span>
+      <span class="logo-leaf">🌿</span>
+    </div>
+    <p class="tagline">
+      ここは、日本語が<span class="pera">ぺらぺら</span>になれる公園。🌳<br>
+      だれでも気軽に立ち寄って、話して、笑って。
+      <span class="sub">A friendly park where your Japanese becomes <em>perapera</em> (fluent)!<br>
+      Drop in anytime — chat, laugh, and grow together. 🎈</span>
+    </p>
+  </div>
+
+  <!-- Level selector -->
+  <div class="level-selector">
+    <button class="lvl-btn active" id="btn-sho" onclick="setLevel('sho')">
+      <span class="lvl-icon">🐼</span>
+      <span class="lvl-name">小学生レベル</span>
+      <span class="lvl-desc">Elementary School</span>
+      <span class="lvl-badge" style="background:#FFE0E8;color:#C060A0">やさしい / Easy</span>
+    </button>
+    <button class="lvl-btn" id="btn-chu" onclick="setLevel('chu')">
+      <span class="lvl-icon">🦊</span>
+      <span class="lvl-name">中学生レベル</span>
+      <span class="lvl-desc">Middle School</span>
+      <span class="lvl-badge" style="background:#E0F0FF;color:#2980B9">ふつう / Medium</span>
+    </button>
+    <button class="lvl-btn" id="btn-kou" onclick="setLevel('kou')">
+      <span class="lvl-icon">🦉</span>
+      <span class="lvl-name">高校生レベル</span>
+      <span class="lvl-desc">High School</span>
+      <span class="lvl-badge" style="background:#E8F5E9;color:#2E7D32">むずかしい / Advanced</span>
+    </button>
+  </div>
+
+  <!-- Chat board (park noticeboard feel) -->
+  <div class="park-board">
+    <!-- Character header -->
+    <div class="board-header">
+      <div class="char-avatar" id="charAvatar">🐼</div>
+      <div class="char-info">
+        <h2><span class="status-dot"></span><span id="charName">パンダくん — Panda-kun（小学生）</span></h2>
+        <p id="charDesc">げんきな小学2年生のパンダくんだよ！🎒 いっしょに日本語でおはなししよう！<br>
+        <span style="opacity:.75;font-size:0.73rem">A cheerful 2nd-grader — simple Japanese with furigana hints!</span></p>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="board-toolbar">
+      <div class="hint-toggle">
+        <label class="toggle-switch">
+          <input type="checkbox" id="hintToggle" checked>
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+        <span>ヒント表示（英語・文法）</span>
+      </div>
+      <button class="clear-btn" onclick="clearChat()">🗑 リセット</button>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-box" id="chatBox">
+      <div class="typing-indicator" id="typingIndicator">
+        <div class="msg-avatar" id="typingAvatar">🐼</div>
+        <div class="typing-dots">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick phrases -->
+  <div class="quick-wrap">
+    <div class="quick-label">🍀 かんたんフレーズ / Quick phrases:</div>
+    <div class="quick-btns" id="quickBtns"></div>
+  </div>
+
+  <!-- Input -->
+  <div class="input-area">
+    <div class="input-wrap">
+      <textarea id="msgInput" placeholder="ここに入力してね… (Type in Japanese or English)"
+        rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    </div>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="送る">✈️</button>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+const LEVELS = {
+  sho:{
+    icon:'🐼',
+    name:'パンダくん — Panda-kun（小学生）',
+    descHTML:'げんきな小学2年生のパンダくんだよ！🎒 いっしょに日本語でおはなししよう！<br><span style="opacity:.75;font-size:0.73rem">A cheerful 2nd-grader — simple Japanese with furigana hints!</span>',
+    greeting:'やあ！ぼく、パンダくんだよ！🐾<br>にほんごで おはなし しようよ！なんでも きいてね〜！',
+    greetingHint:"Hi! I'm Panda-kun! Let's talk in Japanese! Ask me anything~!",
+    phrases:['こんにちは！','おなまえは？','すきな たべものは？','きょうは なにを した？','どこに すんでる？','ありがとう！'],
+    system:`あなたは「パンダくん」という元気な小学2年生の男の子のキャラクターです。日本語学習者の会話相手です。
+【キャラクター】8歳・明るく好奇心旺盛・動物と給食が大好き。語尾「〜だよ」「〜だね」「〜よ」を多用。
+【語彙】ひらがな・カタカナ中心。漢字は小2レベルのみ（ルビ必須：例「学校(がっこう)」）
+【返信形式】
+1. 日本語で自然な返事（2〜3文）
+2. 【】内に英語訳＋やさしい文法メモ
+例：そうなんだ！ぼくも〇〇がすきだよ！🐼
+【English: I see! I like 〇〇 too!
+Note: 「すき」= like (な-adjective); 「〜だよ」= casual affirmation】
+3. 質問を1つ返す。絵文字使用（🐼🎒🍱⭐）`,
+    theme:{
+      primary:'#E8849A',secondary:'#FFB7C5',
+      userGrad:'linear-gradient(135deg,#C060A0,#E8849A)',
+      hintBg:'rgba(255,183,197,0.13)',hintBdr:'#FFB7C5',
+      sendShadow:'rgba(192,96,160,0.38)',
+    }
+  },
+  chu:{
+    icon:'🦊',
+    name:'キツネさん — Kitsune-san（中学生）',
+    descHTML:'中学2年生のキツネさん！📚 自然な日本語で話せるよ。敬語の練習もできるよ！<br><span style="opacity:.75;font-size:0.73rem">A 2nd-year middle schooler — natural Japanese with grammar notes!</span>',
+    greeting:'こんにちは！キツネです🦊<br>一緒に日本語で話しましょう！どんなことでも話しかけてね。',
+    greetingHint:"Hello! I'm Kitsune! Let's talk in Japanese together. Feel free to ask anything!",
+    phrases:['最近どう？','趣味は何ですか？','週末は何をしますか？','好きな音楽は？','日本語を勉強している理由は？','また話しましょう！'],
+    system:`あなたは「キツネさん」という中学2年生の女の子のキャラクターです。日本語学習者の会話相手です。
+【キャラクター】14歳・読書・音楽・アニメが好き。丁寧だが自然な話し言葉。
+【語彙】中学生レベルの語彙・漢字（基本的な漢字は普通に使用）。ときどき敬語も使う。
+【返信形式】
+1. 日本語で自然な返事（2〜4文）
+2. 【】内に英語訳＋文法・語彙メモ（少し詳しく）
+例：最近は読書にはまっているよ。おすすめがあったら教えてね。
+【English: Lately I'm really into reading. Let me know if you have recommendations!
+Grammar: 「〜にはまる」= to be hooked on ~; 「〜てね」= casual request form】
+3. 会話が続くよう質問を1つ。絵文字適度に使用（🦊📚🎵✨）`,
+    theme:{
+      primary:'#2980B9',secondary:'#AED6F1',
+      userGrad:'linear-gradient(135deg,#1A5276,#2980B9)',
+      hintBg:'rgba(174,214,241,0.15)',hintBdr:'#AED6F1',
+      sendShadow:'rgba(41,128,185,0.4)',
+    }
+  },
+  kou:{
+    icon:'🦉',
+    name:'フクロウ先輩 — Fukurou-senpai（高校生）',
+    descHTML:'高校3年生のフクロウ先輩📖 語彙も豊富で、敬語・文語もバッチリ！難しい話題もOK。<br><span style="opacity:.75;font-size:0.73rem">A 3rd-year high schooler — rich vocabulary, formal & informal styles!</span>',
+    greeting:'こんにちは。フクロウです🦉<br>日本語の会話練習、一緒にしましょう。どんなテーマでも構いませんよ。',
+    greetingHint:"Hello. I'm Fukurou. Let's practice Japanese conversation together. Any topic is fine.",
+    phrases:['最近気になるニュースは？','将来の夢について話しましょう','日本文化について教えてください','敬語の練習をしたいです','あなたの意見を聞かせてください','難しいテーマに挑戦しよう'],
+    system:`あなたは「フクロウ先輩」という高校3年生のキャラクターです。日本語学習者の会話相手です。
+【キャラクター】18歳・知的・落ち着いた性格・文学・哲学・時事問題に詳しい。
+【語彙】高校生レベルの豊富な語彙・漢字。場面に応じて敬語と普通体を使い分ける。
+【返信形式】
+1. 日本語で自然な返事（3〜5文）。適切なレベルの語彙・表現を使用。
+2. 【】内に英語訳＋詳細な文法・語彙・表現の解説
+例：その問いは非常に興味深いですね。日本語には独特の表現方法があって、それが文化を反映しているとも言えます。
+【English: That's a very interesting question. Japanese has unique expressions that reflect its culture.
+Vocab: 「非常に」= extremely (formal); 「〜とも言える」= can be said that ~
+Note: Softened assertion common in formal/academic Japanese】
+3. 深みのある質問や考察を返す。絵文字は控えめに（🦉📖✍️）`,
+    theme:{
+      primary:'#2E7D32',secondary:'#A5D6A7',
+      userGrad:'linear-gradient(135deg,#1B5E20,#2E7D32)',
+      hintBg:'rgba(165,214,167,0.15)',hintBdr:'#A5D6A7',
+      sendShadow:'rgba(46,125,50,0.4)',
+    }
+  }
+};
+
+let currentLevel='sho';
+const chatBox   =document.getElementById('chatBox');
+const msgInput  =document.getElementById('msgInput');
+const sendBtn   =document.getElementById('sendBtn');
+const typingInd =document.getElementById('typingIndicator');
+const hintToggle=document.getElementById('hintToggle');
+
+function applyTheme(t){
+  const r=document.documentElement.style;
+  r.setProperty('--lvl-primary',    t.primary);
+  r.setProperty('--lvl-secondary',  t.secondary);
+  r.setProperty('--lvl-user-grad',  t.userGrad);
+  r.setProperty('--lvl-hint-bg',    t.hintBg);
+  r.setProperty('--lvl-hint-bdr',   t.hintBdr);
+  r.setProperty('--lvl-send-shadow',t.sendShadow);
+}
+
+function setLevel(key){
+  if(currentLevel===key)return;
+  currentLevel=key;
+  const lv=LEVELS[key];
+  ['sho','chu','kou'].forEach(k=>
+    document.getElementById('btn-'+k).classList.toggle('active',k===key)
+  );
+  applyTheme(lv.theme);
+  document.getElementById('charAvatar').textContent  =lv.icon;
+  document.getElementById('charName').textContent    =lv.name;
+  document.getElementById('charDesc').innerHTML      =lv.descHTML;
+  document.getElementById('typingAvatar').textContent=lv.icon;
+  renderPhrases(key);
+  clearChat();
+}
+
+function renderPhrases(key){
+  const w=document.getElementById('quickBtns');
+  w.innerHTML='';
+  LEVELS[key].phrases.forEach(p=>{
+    const b=document.createElement('button');
+    b.className='quick-btn';b.textContent=p;
+    b.onclick=()=>quickSend(p);w.appendChild(b);
+  });
+}
+
+function getTime(){return new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});}
+
+function addMessage(text,isUser,hint=''){
+  const lv=LEVELS[currentLevel];
+  const msg=document.createElement('div');
+  msg.className='message '+(isUser?'user':'ai');
+  const sh=!isUser&&hint;
+  msg.innerHTML=`
+    <div class="msg-avatar">${isUser?'😊':lv.icon}</div>
+    <div style="max-width:76%">
+      <div class="msg-bubble">${text}</div>
+      ${sh?`<div class="hint-box hint-area" style="display:${hintToggle.checked?'block':'none'}">${hint}</div>`:''}
+      <div class="msg-time">${getTime()}</div>
+    </div>`;
+  chatBox.insertBefore(msg,typingInd);
+  chatBox.scrollTop=chatBox.scrollHeight;
+}
+
+function clearChat(){
+  [...chatBox.children].forEach(el=>{if(el.id!=='typingIndicator')el.remove();});
+  const lv=LEVELS[currentLevel];
+  addMessage(lv.greeting,false,lv.greetingHint);
+}
+
+hintToggle.addEventListener('change',()=>{
+  document.querySelectorAll('.hint-area').forEach(el=>{
+    el.style.display=hintToggle.checked?'block':'none';
+  });
+});
+
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+function quickSend(text){msgInput.value=text;sendMessage();}
+
+async function sendMessage(){
+  const text=msgInput.value.trim();
+  if(!text||sendBtn.disabled)return;
+  addMessage(text,true);
+  msgInput.value='';msgInput.style.height='auto';
+  sendBtn.disabled=true;typingInd.classList.add('show');
+  chatBox.scrollTop=chatBox.scrollHeight;
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        system:LEVELS[currentLevel].system,
+        messages:[{role:"user",content:text}]
+      })
+    });
+    const data=await res.json();
+    const full=data.content.map(b=>b.text||'').join('');
+    const hm=full.match(/【([\s\S]*?)】/);
+    const main=full.replace(/【[\s\S]*?】/g,'').trim();
+    const hint=hm?hm[1].trim():'';
+    typingInd.classList.remove('show');
+    addMessage(main,false,hint);
+  }catch{
+    typingInd.classList.remove('show');
+    addMessage(`${LEVELS[currentLevel].icon} ごめんなさい、接続に失敗しました。もう一度試してください。`,false,'Sorry, connection failed. Please try again!');
+  }
+  sendBtn.disabled=false;msgInput.focus();
+}
+
+// Init
+applyTheme(LEVELS['sho'].theme);
+renderPhrases('sho');
+addMessage(LEVELS['sho'].greeting,false,LEVELS['sho'].greetingHint);
+</script>
+</body>
+</html>
